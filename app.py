@@ -2,22 +2,37 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# Load model and features
+# Load model and feature names
 with open("model.pkl", "rb") as f:
-    model_data = pickle.load(f)
-    model = model_data["model"]
-    feature_names = model_data["features"]
+    model = pickle.load(f)
 
-# Example inputs (replace with st.number_input etc.)
+# Manually specify feature names in the same order as training
+feature_names = ["age", "gender", "bp", "chol", "smoker"]
+
+
+# Manually define feature names (based on your dataset)
+feature_names = ["age", "gender", "bp", "chol", "smoker"]
+
+
+# Collect user inputs
+age = st.number_input("Age", min_value=0, max_value=120)
+gender = st.selectbox("Gender", ["Male", "Female"])  # categorical
+bp = st.number_input("Blood Pressure")
+chol = st.number_input("Cholesterol Level")
+smoker = st.selectbox("Do you smoke?", ["Yes", "No"])  # categorical
+
+# Convert inputs into the proper format
 input_data = {
-    "age": st.number_input("Age"),
-    "bp": st.number_input("Blood Pressure"),
-    "cholesterol": st.number_input("Cholesterol")
+    "age": age,
+    "gender": 1 if gender == "Male" else 0,  # You can map categories this way
+    "bp": bp,
+    "chol": chol,
+    "smoker": 1 if smoker == "Yes" else 0
 }
 
-# Make sure the input DataFrame matches training features
+# Convert to DataFrame in correct order
 input_df = pd.DataFrame([input_data])
-input_df = input_df[feature_names]  # Ensure correct column order
+input_df = input_df[feature_names]
 
 # Predict
 if st.button("Predict"):
