@@ -2,29 +2,24 @@ import streamlit as st
 import pandas as pd
 import pickle
 
-# Load trained model
+# Load model and features
 with open("model.pkl", "rb") as f:
-    model = pickle.load(f)
+    model_data = pickle.load(f)
+    model = model_data["model"]
+    feature_names = model_data["features"]
 
-st.title("Health Risk Predictor 💉")
-st.write("Enter the details below to check if someone is at risk.")
+# Example inputs (replace with st.number_input etc.)
+input_data = {
+    "age": st.number_input("Age"),
+    "bp": st.number_input("Blood Pressure"),
+    "cholesterol": st.number_input("Cholesterol")
+}
 
-# Dynamically create inputs based on model features
-input_features = [
-    'age', 'gender', 'chest_pain', 'high_blood_pressure', 'high_cholesterol',
-    'diabetes', 'family_history', 'smoking', 'physical_inactivity',
-    'stress', 'neck_jaw_pain', 'cold_hands_feet', 'stroke_risk_percentage'
-]
+# Make sure the input DataFrame matches training features
+input_df = pd.DataFrame([input_data])
+input_df = input_df[feature_names]  # Ensure correct column order
 
-user_input = {}
-for feature in input_features:
-    user_input[feature] = st.number_input(f"{feature.replace('_', ' ').title()}", step=1.0)
-
-# When the user clicks Predict
-if st.button("Predict Risk"):
-    input_df = pd.DataFrame([user_input])
+# Predict
+if st.button("Predict"):
     prediction = model.predict(input_df)[0]
-    if prediction == 1:
-        st.error("⚠️ The person is at risk!")
-    else:
-        st.success("✅ The person is not at risk.")
+    st.success(f"Prediction: {prediction}")
