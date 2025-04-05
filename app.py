@@ -22,13 +22,22 @@ chol = st.number_input("Cholesterol Level")
 smoker = st.selectbox("Do you smoke?", ["Yes", "No"])  # categorical
 
 # Convert inputs into the proper format
+# List of features used during training (exact order matters)
+feature_names = ["age", "gender", "bp", "chol", "smoker"]
+
+# Create dictionary from inputs
 input_data = {
     "age": age,
-    "gender": 1 if gender == "Male" else 0,  # You can map categories this way
+    "gender": 1 if gender == "Male" else 0,
     "bp": bp,
     "chol": chol,
     "smoker": 1 if smoker == "Yes" else 0
 }
+
+# Create DataFrame and reorder columns to match model training
+input_df = pd.DataFrame([input_data])
+input_df = input_df[feature_names]  # ensure correct order
+
 
 # Convert to DataFrame in correct order
 input_df = pd.DataFrame([input_data])
