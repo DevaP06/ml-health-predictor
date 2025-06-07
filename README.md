@@ -12,21 +12,21 @@ A machine learning-based web application that predicts the risk of a person havi
 
 ## 📁 Project Structure
 ml-health-predictor/
-├── app.py # Flask web app for user interaction
-├── modeltraining.py # Script for initial model training
-├── train_model.py # Alternate or final model training script
-├── model.pkl # Saved ML model (used in app.py)
-├── dataset.csv # Raw health dataset
-├── cleaned_dataset.csv # Cleaned/preprocessed dataset
-├── requirements.txt # Python dependencies
-└── README.md # Project documentation
+- ├── app.py # Flask web app for user interaction
+- ├── modeltraining.py # Script for initial model training
+- ├── train_model.py # Alternate or final model training script
+- ├── model.pkl # Saved ML model (used in app.py)
+- ├── dataset.csv # Raw health dataset
+- ├── cleaned_dataset.csv # Cleaned/preprocessed dataset
+- ├── requirements.txt # Python dependencies
+- └── README.md # Project documentation
 
 🔧 Technologies Used
--Python
--Pandas & NumPy
--Scikit-learn
--Flask
--Pickle
+- Python
+- Pandas & NumPy
+- Scikit-learn
+- Flask
+- Pickle
 
 To view click here-:
  https://ml-health-predictor-msgmybpnsk9x5ofajajhmj.streamlit.app/
