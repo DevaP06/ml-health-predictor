@@ -1,71 +1,60 @@
-import streamlit as st
-import pickle
+# app.py
+
 import pandas as pd
+import joblib
 
-# Load the trained model
-with open("model.pkl", "rb") as f:
-    model_data = pickle.load(f)
-    model = model_data["model"]
-    feature_names = model_data["features"]
+def get_patient_input():
+    print("\nEnter Patient Details:")
 
-st.title("Heart Health Risk Predictor")
+    age = float(input("Age: "))
 
-st.markdown("### Please fill in the following information:")
+    gender = input("Gender (0 = FEMALE, 1 = MALE): ").strip()
+    while gender not in ['0', '1']:
+        gender = input("Invalid input. Enter '0' for FEMALE or '1' for MALE: ").strip()
+    gender = int(gender)
 
-# Input fields
-age = st.number_input("Age", min_value=0, max_value=120)
-gender = st.selectbox("Gender", ["Male", "Female"])
+    def ask_binary(question):
+        return int(input(f"{question} (0 = No, 1 = Yes): "))
 
-chest_pain = st.selectbox("Chest Pain", ["Yes", "No"])
-high_blood_pressure = st.selectbox("High Blood Pressure", ["Yes", "No"])
-irregular_heartbeat = st.selectbox("Irregular Heartbeat", ["Yes", "No"])
-shortness_of_breath = st.selectbox("Shortness of Breath", ["Yes", "No"])
-fatigue_weakness = st.selectbox("Fatigue or Weakness", ["Yes", "No"])
-dizziness = st.selectbox("Dizziness", ["Yes", "No"])
-swelling_edema = st.selectbox("Swelling or Edema", ["Yes", "No"])
-neck_jaw_pain = st.selectbox("Neck or Jaw Pain", ["Yes", "No"])
-excessive_sweating = st.selectbox("Excessive Sweating", ["Yes", "No"])
-persistent_cough = st.selectbox("Persistent Cough", ["Yes", "No"])
-nausea_vomiting = st.selectbox("Nausea or Vomiting", ["Yes", "No"])
-chest_discomfort = st.selectbox("Chest Discomfort", ["Yes", "No"])
-cold_hands_feet = st.selectbox("Cold Hands or Feet", ["Yes", "No"])
-snoring_sleep_apnea = st.selectbox("Snoring or Sleep Apnea", ["Yes", "No"])
-anxiety_doom = st.selectbox("Anxiety or Sense of Doom", ["Yes", "No"])
-stroke_risk_percentage = st.number_input("Stroke Risk Percentage", min_value=0.0, max_value=100.0)
+    patient_data = {
+        'age': age,
+        'gender': gender,
+        'chest_pain': ask_binary("Chest Pain"),
+        'high_blood_pressure': ask_binary("High Blood Pressure"),
+        'irregular_heartbeat': ask_binary("Irregular Heartbeat"),
+        'shortness_of_breath': ask_binary("Shortness of Breath"),
+        'fatigue_weakness': ask_binary("Fatigue/Weakness"),
+        'dizziness': ask_binary("Dizziness"),
+        'swelling_edema': ask_binary("Swelling/Edema"),
+        'neck_jaw_pain': ask_binary("Neck/Jaw Pain"),
+        'excessive_sweating': ask_binary("Excessive Sweating"),
+        'persistent_cough': ask_binary("Persistent Cough"),
+        'nausea_vomiting': ask_binary("Nausea/Vomiting"),
+        'chest_discomfort': ask_binary("Chest Discomfort"),
+        'cold_hands_feet': ask_binary("Cold Hands/Feet"),
+        'snoring_sleep_apnea': ask_binary("Snoring/Sleep Apnea"),
+        'anxiety_doom': ask_binary("Anxiety/Doom")
+    }
 
-# Convert inputs to match model input
-def convert(val): return 1 if val == "Yes" else 0
+    return pd.DataFrame([patient_data])
 
-input_data = {
-    "age": age,
-    "gender": 1 if gender == "Male" else 0,
-    "chest_pain": convert(chest_pain),
-    "high_blood_pressure": convert(high_blood_pressure),
-    "irregular_heartbeat": convert(irregular_heartbeat),
-    "shortness_of_breath": convert(shortness_of_breath),
-    "fatigue_weakness": convert(fatigue_weakness),
-    "dizziness": convert(dizziness),
-    "swelling_edema": convert(swelling_edema),
-    "neck_jaw_pain": convert(neck_jaw_pain),
-    "excessive_sweating": convert(excessive_sweating),
-    "persistent_cough": convert(persistent_cough),
-    "nausea_vomiting": convert(nausea_vomiting),
-    "chest_discomfort": convert(chest_discomfort),
-    "cold_hands_feet": convert(cold_hands_feet),
-    "snoring_sleep_apnea": convert(snoring_sleep_apnea),
-    "anxiety_doom": convert(anxiety_doom),
-    "stroke_risk_percentage": stroke_risk_percentage
-}
+def main():
+    # Load trained models and feature columns
+    model_at_risk = joblib.load("model_at_risk.pkl")
+    model_stroke_percentage = joblib.load("model_stroke_at_risk_percentage.pkl")
+    feature_columns = joblib.load("feature_columns.pkl")
 
-input_df = pd.DataFrame([input_data])
+    patient_df = get_patient_input()
+    # Ensure columns match training features
+    patient_df = patient_df.reindex(columns=feature_columns, fill_value=0)
 
-# Ensure feature order matches model training
-input_df = input_df[feature_names]
+    # Predict At Risk
+    at_risk_pred = model_at_risk.predict(patient_df)[0]
+    print(f"\nPredicted At Risk: {'Yes' if at_risk_pred == 1 else 'No'}")
 
-# Predict
-if st.button("Predict Risk"):
-    prediction = model.predict(input_df)[0]
-    if prediction == 1:
-        st.error("⚠️ The patient is at risk.")
-    else:
-        st.success("✅ The patient is not at risk.")
+    # Predict Stroke Risk Percentage
+    stroke_pred = model_stroke_percentage.predict(patient_df)[0]
+    print(f"Predicted Stroke Risk Percentage: {stroke_pred:.2f}%")
+
+if __name__ == "__main__":
+    main()
